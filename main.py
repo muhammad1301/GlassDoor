@@ -10,6 +10,8 @@ def main():
     G = Glassdoor('uc', headless2=HEADLESS, start=True)
     # G.open_web()
     start_time = time.time()
+    G.login()
+    time.sleep(5)
     # G.open_links()
     G.open_links_2()
     end_time = time.time()
