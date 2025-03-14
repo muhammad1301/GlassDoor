@@ -6,7 +6,7 @@ import queue
 import threading
 Header = ["urls"]
 Header_2 = ["Jobs Urls"]
-Header_3 = ["Job Title", "Base Pay", "Salaries Submitted",
+Header_3 = ["Job Name","Company Name","urls","Job Title", "Base Pay", "Salaries Submitted",
             "Confidence Level", "Updated Date", "Country", "Experience Level",
             "Average pay per year", "Range pay per year"]
 def writing_csv(row):
@@ -32,22 +32,14 @@ def writing_csv_3(row):
         if os.path.getsize(fp) == 0:
             writer.writerow(Header_3)
         writer.writerow(row)
-# def start_browser():
-#     """Starts undetected Chrome browser."""
-#     options = uc.ChromeOptions()
-#     options.add_argument("--disable-blink-features=AutomationControlled")
-#     driver = uc.Chrome(options=options)
-#     driver.set_page_load_timeout(30)
-#     return driver
-#
-#
-# driver = start_browser()
+
+
 class Glassdoor(Selenium):
 
     def login(self):
         self.get('https://www.glassdoor.co.uk/Salary/SelfEmployed-com-Director-Salaries-E5529631_D_KO17,25.htm')
         try:
-            time.sleep(15)
+            time.sleep(20)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '(//button[@class="button_Button__BWBls button-base_Button__YPLQY"])[1]')))
             sign_in_button = self.find_element(By.XPATH, '(//button[@class="button_Button__BWBls button-base_Button__YPLQY"])[1]')
             time.sleep(2)
@@ -63,7 +55,7 @@ class Glassdoor(Selenium):
         try:
             self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(@aria-label, 'sign in')]")))
             email_input = self.find_element(By.XPATH, "//input[@type='email']")
-            email_input.send_keys("qanfat70@gmail.com")  # Replace with your email
+            email_input.send_keys("musabinnaveed542@gmail.com")  # Replace with your email
             email_input.send_keys(Keys.RETURN)
 
             time.sleep(2)
@@ -77,19 +69,19 @@ class Glassdoor(Selenium):
             print("Error entering credentials:", e)
 
     def changing_country(self):
-        select_coun = self.find_element(By.XPATH, "(//div[@type='button'])[1]")
+        select_country = self.find_element(By.XPATH, "(//div[@type='button'])[1]")
         time.sleep(2)
-        select_coun.click()
+        select_country.click()
 
     def crawling(self):
         while True:
             i = 1
             try:
-               for i in range(1,5):
-                    urls_compines = self.href(By.XPATH, f'(//a[@datatype="Salaries"])[{i}]')
-                    print(urls_compines)
+               while True:
+                    urls_companies = self.href(By.XPATH, f'(//a[@datatype="Salaries"])[{i}]')
+                    print(urls_companies)
                     i = i+1
-                    row = [urls_compines]
+                    row = [urls_companies]
                     writing_csv(row)
             except:
                 pass
@@ -101,21 +93,21 @@ class Glassdoor(Selenium):
     def filters(self):
         time.sleep(5)
         self.wait.until(EC.presence_of_element_located((By.XPATH, '//*[text()="Job function"]')))
-        job_fun_elm = self.find_element(By.XPATH, '//button[@class="accordion-item_Button__JhFIY"]')
-        job_fun_elm.click()
+        job_function_element = self.find_element(By.XPATH, '//button[@class="accordion-item_Button__JhFIY"]')
+        job_function_element.click()
         time.sleep(3)
         self.wait.until(
             EC.presence_of_element_located((By.XPATH, '(//label[@class="checkbox-base_CheckboxContainer__Lz_M0"])[1]')))
         for i in range(1, 4):
             time.sleep(3)
-            box_to_click = self.find_element(By.XPATH, f'(//label[@class="checkbox-base_CheckboxContainer__Lz_M0"])[{i}]')
-            box_to_click.click()
+            boxes_to_click = self.find_element(By.XPATH, f'(//label[@class="checkbox-base_CheckboxContainer__Lz_M0"])[{i}]')
+            boxes_to_click.click()
             i = +1
         time.sleep(2)
-        size_elm = self.find_element(By.XPATH, '(//span[@class="radio_LabelText__4WFWR"])[1]/..//input')
-        size_elm.send_keys(Keys.PAGE_DOWN)
+        size_selecting_element = self.find_element(By.XPATH, '(//span[@class="radio_LabelText__4WFWR"])[1]/..//input')
+        size_selecting_element.send_keys(Keys.PAGE_DOWN)
         time.sleep(2)
-        size_elm.click()
+        size_selecting_element.click()
         time.sleep(3)
         print("done")
         self.crawling()
@@ -131,71 +123,92 @@ class Glassdoor(Selenium):
             try:
                 i = 1
                 while True:
-                    jobs_elm = self.href(By.XPATH, f'(//td[@class="salarylist_table-element___3Va_"'
+                    error_elm = self.find_element(By.XPATH, '//div[@class="cf-error-details cf-error-502"]').text
+
+                    time.sleep(3)
+                    jobs_finding_element = self.href(By.XPATH, f'(//td[@class="salarylist_table-element___3Va_"'
                                                    f']//*[@class="salarylist_job-title-link__MXnPX"])[{i}]')
                     job_title = self.text(By.XPATH, f'(//td[@class="salarylist_table-element___3Va_"]//a)[{i}]')
-                    print(i,jobs_elm)
+                    print(i, jobs_finding_element)
                     i = i+1
-                    row2 = [jobs_elm, job_title]
+                    row2 = [jobs_finding_element, job_title]
                     writing_csv_2(row2)
             except:
-                pass
-            job_btn = self.find_element(By.XPATH, '(//button[@class="pagination_ListItemButton__se7rv'
-                                                   ' pagination_Chevron__9Eauq"])[2]')
-            job_btn.click()
+                number_of_jobs_pages = self.find_element(By.XPATH, '(//section[@class="salarylist_SalaryListContainer__6rbaC app_redesignModule__edT_b"]//p)[5]').text
+                if number_of_jobs_pages == 'Viewing 1 - 0 of 0':
+                    break
+                else:
+                    pass
+            next_page_job_button = self.find_element(By.XPATH, '(//button[@class="pagination_ListItemButton__se7rv pagination_Chevron__9Eauq"])[2]')
+            if next_page_job_button.is_enabled():
+                # job_btn.send_keys(Keys.END)
+                time.sleep(2)
+                next_page_job_button.click()
+            else:
+                break
 
-    def _scraping(self):
+    def _scraping(self, urls):
         i = 1
         while True:
             try:
                 if i == 8:
                     break
-                exp_elm = self.find_element(By.XPATH, '(//div[@type="button"])[2]')
-                exp_elm.click()
+                experience_to_select = self.find_element(By.XPATH, '(//div[@type="button"])[2]')
+                experience_to_select.click()
                 print('clicked')
                 time.sleep(2)
-                exp_button = self.find_element(By.XPATH, f'(//li[@class='
+                experience_button = self.find_element(By.XPATH, f'(//li[@class='
                                                          f'"data-select_SelectItem__tVKZp"])[{i}]')
-                exp_button.click()
+                experience_button.click()
                 time.sleep(1.5)
                 i = i + 1
             except:
                 print('error')
             try:
-                exp_text_elm = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[2]').text
+                company_name = self.find_element(By.XPATH, '//h1').text
             except:
-                exp_text_elm = 'N/A'
+                company_name = "N/A"
+            try:
+                job_title = self.find_element(By.XPATH, '//p[@class="employer-header_employerHeader_LPAMn employer-header_header_jJFKa"]').text
+            except:
+                job_title = "N/A"
+            try:
+                experience_text_element = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[2]').text
+            except:
+                experience_text_element = "None"
             try:
                 base_pay_element = self.find_element(By.XPATH, '(//div[@class="hero_TotalPayLayout__X55hl hero_PayRange__nKzVj"])[1]').text
             except:
-                base_pay_element = "N/A"
+                base_pay_element = "None"
             try:
                 salaries_submitted_element = self.find_element(By.XPATH, '//span[@data-test="salaries-submitted"]').text
             except:
-                salaries_submitted_element = "N/A"
+                salaries_submitted_element = "None"
             try:
-                confidence_element = self.find_element(By.XPATH, '//span[@class="confidence_ConfidenceLabel__M4wsy"]').text
+                confidence_element = self.find_element(By.XPATH,
+                                                       '//span[@class="confidence_ConfidenceLabel__M4wsy"]').text
             except:
-                confidence_element = "N/A"
+                confidence_element = "None"
             try:
                 updated_date_element = self.find_element(By.XPATH, "//span[contains(@data-test, 'last-updated')]").text
             except:
-                updated_date_element = "N/A"
+                updated_date_element = "None"
             try:
-                contry_elm = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[1]').text
+                country_elm = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[1]').text
             except:
-                contry_elm = "N/A"
+                country_elm = "None"
             try:
-                average_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[1]').text
+                average_pay_element = self.find_element(By.XPATH,
+                                                    '(//span[@class="hero_AdditionalPayFont__C2brS"])[1]').text
             except:
-                average_element = "N/A"
+                average_pay_element = "None"
             try:
-                range_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[2]').text
+                range_pay_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[2]').text
             except:
-                range_element = "N/A"
+                range_pay_element = "None"
 
-            row = ["N/A",base_pay_element, salaries_submitted_element, confidence_element,
-                   updated_date_element, contry_elm, exp_text_elm,average_element, range_element]
+            row = [job_title, company_name, urls, base_pay_element, salaries_submitted_element, confidence_element,
+                   updated_date_element, country_elm, experience_text_element, average_pay_element, range_pay_element]
             print(row)
             writing_csv_3(row)
 
@@ -265,7 +278,7 @@ class Glassdoor(Selenium):
                 try:
                     self.get(links)
                     time.sleep(5)
-                    self._scraping()
+                    self._scraping(links)
                 except ExceptionGroup:
                     print(f"Failed to open {links}")
             self.q.task_done()
