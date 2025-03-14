@@ -3,12 +3,10 @@ from driver import *
 import csv
 import os
 import queue
-import threading
+
 Header = ["urls"]
-Header_2 = ["Jobs Urls"]
-Header_3 = ["Job Name","Company Name","urls","Job Title", "Base Pay", "Salaries Submitted",
-            "Confidence Level", "Updated Date", "Country", "Experience Level",
-            "Average pay per year", "Range pay per year"]
+
+# saving company urls of one country from crawler
 def writing_csv(row):
     fp = 'compines.csv'
     with open(fp, 'a', encoding='utf-8', newline='') as f:
@@ -16,7 +14,9 @@ def writing_csv(row):
         if os.path.getsize(fp) == 0:
             writer.writerow(Header)
         writer.writerow(row)
+Header_2 = ["Jobs Urls"]
 
+# saving job urls which scraped from crawler2
 def writing_csv_2(row):
     fp = 'jobs.csv'
     with open(fp, 'a', encoding='utf-8', newline='') as f:
@@ -24,7 +24,11 @@ def writing_csv_2(row):
         if os.path.getsize(fp) == 0:
             writer.writerow(Header_2)
         writer.writerow(row)
+Header_3 = ["Job Name","Company Name","urls","Job Title", "Base Pay", "Salaries Submitted",
+            "Confidence Level", "Updated Date", "Country", "Experience Level",
+            "Average pay per year", "Range pay per year"]
 
+#saving data from job links
 def writing_csv_3(row):
     fp = 'data.csv'
     with open(fp, 'a', encoding='utf-8', newline='') as f:
@@ -37,7 +41,12 @@ def writing_csv_3(row):
 class Glassdoor(Selenium):
 
     def login(self):
+        """
+        Login function opens the link and login using email and password.
+        :return:
+        """
         self.get('https://www.glassdoor.co.uk/Salary/SelfEmployed-com-Director-Salaries-E5529631_D_KO17,25.htm')
+        # clicking on sign in button
         try:
             time.sleep(20)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '(//button[@class="button_Button__BWBls button-base_Button__YPLQY"])[1]')))
@@ -49,9 +58,7 @@ class Glassdoor(Selenium):
         except Exception as e:
             print("Error clicking Sign-In button:", e)
 
-        # time.sleep(2)
-
-        # Enter credentials
+        # Entering Email and Password
         try:
             self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(@aria-label, 'sign in')]")))
             email_input = self.find_element(By.XPATH, "//input[@type='email']")
@@ -69,11 +76,19 @@ class Glassdoor(Selenium):
             print("Error entering credentials:", e)
 
     def changing_country(self):
+        """
+        Changing country function is desgin to change country to scrape more links form website.
+        :return:
+        """
         select_country = self.find_element(By.XPATH, "(//div[@type='button'])[1]")
         time.sleep(2)
         select_country.click()
 
-    def crawling(self):
+    def crawler(self):
+        """
+        Crawler scrapes the urls from the websites and save in csv file.
+        :return:
+        """
         while True:
             i = 1
             try:
@@ -91,6 +106,11 @@ class Glassdoor(Selenium):
             # time.sleep(2)
 
     def filters(self):
+        """
+        It enters the filters on the page by selecting various buttons of different types.
+        Then the function give control to the crawler to scrape links of companies.
+        :return:
+        """
         time.sleep(5)
         self.wait.until(EC.presence_of_element_located((By.XPATH, '//*[text()="Job function"]')))
         job_function_element = self.find_element(By.XPATH, '//button[@class="accordion-item_Button__JhFIY"]')
@@ -110,7 +130,7 @@ class Glassdoor(Selenium):
         size_selecting_element.click()
         time.sleep(3)
         print("done")
-        self.crawling()
+        self.crawler()
 
     def scroll_down(self):
         """Scrolls to the bottom of the page."""
@@ -118,6 +138,10 @@ class Glassdoor(Selenium):
         time.sleep(2)
 
     def crawler_2(self):
+        """
+        Crawler 2 is designed to scrape job links.
+        it also saves the output links in the csv file.
+        """
         print("stated")
         while True:
             try:
@@ -148,6 +172,11 @@ class Glassdoor(Selenium):
                 break
 
     def _scraping(self, urls):
+        """
+        The scraping function open the job links to scrape data from the links according to the statements.
+        :param urls:
+        :return:
+        """
         i = 1
         while True:
             try:
@@ -213,9 +242,11 @@ class Glassdoor(Selenium):
             writing_csv_3(row)
 
     def open_web(self):
+        """
+        Open web is the start of the scraper it opens the website Glass Door.
+        Then send control to crawler.
+        """
         self.get("https://www.glassdoor.co.uk/Reviews/index.htm")
-        time.sleep(60)
-        self.login()
         self.filters()
 
     q = queue.Queue()
