@@ -24,13 +24,13 @@ def writing_csv_2(row):
         if os.path.getsize(fp) == 0:
             writer.writerow(Header_2)
         writer.writerow(row)
-Header_3 = ["Job Name","Company Name","urls","Job Title", "Base Pay", "Salaries Submitted",
+Header_3 = ["Job Name","Company Name","urls", "Base Pay", "Salaries Submitted",
             "Confidence Level", "Updated Date", "Country", "Experience Level",
             "Average pay per year", "Range pay per year"]
 
 #saving data from job links
 def writing_csv_3(row):
-    fp = 'data.csv'
+    fp = 'data2.csv'
     with open(fp, 'a', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         if os.path.getsize(fp) == 0:
@@ -50,16 +50,18 @@ class Glassdoor(Selenium):
         try:
             time.sleep(20)
             self.wait.until(EC.presence_of_element_located((By.XPATH, '(//button[@class="button_Button__BWBls button-base_Button__YPLQY"])[1]')))
+            # time.sleep(5)
             sign_in_button = self.find_element(By.XPATH, '(//button[@class="button_Button__BWBls button-base_Button__YPLQY"])[1]')
             time.sleep(2)
             sign_in_button.click()
-            time.sleep(10)
+            time.sleep(5)
             print("Clicked on Sign-In button.")
         except Exception as e:
             print("Error clicking Sign-In button:", e)
 
         # Entering Email and Password
         try:
+            time.sleep(10)
             self.wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(@aria-label, 'sign in')]")))
             email_input = self.find_element(By.XPATH, "//input[@type='email']")
             email_input.send_keys("musabinnaveed542@gmail.com")  # Replace with your email
@@ -147,7 +149,7 @@ class Glassdoor(Selenium):
             try:
                 i = 1
                 while True:
-                    error_elm = self.find_element(By.XPATH, '//div[@class="cf-error-details cf-error-502"]').text
+                    # error_elm = self.find_element(By.XPATH, '//div[@class="cf-error-details cf-error-502"]').text
 
                     time.sleep(3)
                     jobs_finding_element = self.href(By.XPATH, f'(//td[@class="salarylist_table-element___3Va_"'
@@ -171,6 +173,16 @@ class Glassdoor(Selenium):
             else:
                 break
 
+    def drop_down_menu(self,i):
+        time.sleep(5)
+        self.wait.until(EC.presence_of_element_located((By.XPATH, '(//div[@type="button"])[2]')))
+        experience_to_select = self.find_element(By.XPATH, '(//div[@type="button"])[2]')
+        experience_to_select.click()
+        print('clicked')
+        time.sleep(3)
+        experience_button = self.find_element(By.XPATH, f'(//li[@class="data-select_SelectItem__tVKZp"])[{i}]')
+        experience_button.click()
+
     def _scraping(self, urls):
         """
         The scraping function open the job links to scrape data from the links according to the statements.
@@ -178,29 +190,36 @@ class Glassdoor(Selenium):
         :return:
         """
         i = 1
-        while True:
+        for i in range(1,8):
             try:
-                if i == 8:
-                    break
-                experience_to_select = self.find_element(By.XPATH, '(//div[@type="button"])[2]')
-                experience_to_select.click()
-                print('clicked')
+                print('trying 1')
+                self.drop_down_menu(i)
+                time.sleep(3)
+            except:
+                try:
+                    print("trying again")
+                    time.sleep(10)
+                    self.drop_down_menu(i)
+                except:
+                    try:
+                        print("trying again 2")
+                        time.sleep(5)
+                        self.drop_down_menu(i)
+                    except:
+                        print("error in drop down menu")
+            try:
                 time.sleep(2)
-                experience_button = self.find_element(By.XPATH, f'(//li[@class='
-                                                         f'"data-select_SelectItem__tVKZp"])[{i}]')
-                experience_button.click()
-                time.sleep(1.5)
-                i = i + 1
+                self.wait.until(EC.presence_of_element_located((By.XPATH,'//div[@class="employer-header_nameAndRating___HtOS"]//p')))
+                company_name = self.find_element(By.XPATH, '//div[@class="employer-header_nameAndRating___HtOS"]//p').text
+                company_scroll = self.find_element(By.XPATH, '//a[@data-test="ei-hero-overview-link"]')
+                company_scroll.send_keys(Keys.PAGE_DOWN)
             except:
-                print('error')
+                company_name = "None"
             try:
-                company_name = self.find_element(By.XPATH, '//h1').text
+                # self.wait.until(EC.presence_of_element_located((By.XPATH,'//h1')))
+                job_title = self.find_element(By.XPATH, '//h1').text
             except:
-                company_name = "N/A"
-            try:
-                job_title = self.find_element(By.XPATH, '//p[@class="employer-header_employerHeader_LPAMn employer-header_header_jJFKa"]').text
-            except:
-                job_title = "N/A"
+                job_title = "None"
             try:
                 experience_text_element = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[2]').text
             except:
@@ -227,6 +246,7 @@ class Glassdoor(Selenium):
             except:
                 country_elm = "None"
             try:
+                time.sleep(2)
                 average_pay_element = self.find_element(By.XPATH,
                                                     '(//span[@class="hero_AdditionalPayFont__C2brS"])[1]').text
             except:
@@ -235,10 +255,13 @@ class Glassdoor(Selenium):
                 range_pay_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[2]').text
             except:
                 range_pay_element = "None"
+            time.sleep(5)
 
-            row = [job_title, company_name, urls, base_pay_element, salaries_submitted_element, confidence_element,
-                   updated_date_element, country_elm, experience_text_element, average_pay_element, range_pay_element]
-            print(row)
+            i = i + 1
+
+            row = (job_title, company_name, urls, base_pay_element, salaries_submitted_element, confidence_element,
+                   updated_date_element, country_elm, experience_text_element, average_pay_element, range_pay_element)
+
             writing_csv_3(row)
 
     def open_web(self):
@@ -314,11 +337,3 @@ class Glassdoor(Selenium):
                     print(f"Failed to open {links}")
             self.q.task_done()
             time.sleep(1)
-
-        # try:
-        #     self.login()
-        # except:
-        #     pass
-        #
-        # time.sleep(60)
-        # self.filters()
