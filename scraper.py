@@ -195,74 +195,67 @@ class Glassdoor(Selenium):
                 print('trying 1')
                 self.drop_down_menu(i)
                 time.sleep(3)
+                try:
+                    time.sleep(2)
+                    self.wait.until(EC.presence_of_element_located((By.XPATH,'//div[@class="employer-header_nameAndRating___HtOS"]//p')))
+                    company_name = self.find_element(By.XPATH, '//div[@class="employer-header_nameAndRating___HtOS"]//p').text
+                    company_scroll = self.find_element(By.XPATH, '//a[@data-test="ei-hero-overview-link"]')
+                    company_scroll.send_keys(Keys.PAGE_DOWN)
+                except:
+                    company_name = "None"
+                try:
+                    # self.wait.until(EC.presence_of_element_located((By.XPATH,'//h1')))
+                    job_title = self.find_element(By.XPATH, '//h1').text
+                except:
+                    job_title = "None"
+                try:
+                    experience_text_element = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[2]').text
+                except:
+                    experience_text_element = "None"
+                try:
+                    base_pay_element = self.find_element(By.XPATH, '(//div[@class="hero_TotalPayLayout__X55hl hero_PayRange__nKzVj"])[1]').text
+                except:
+                    base_pay_element = "None"
+                try:
+                    salaries_submitted_element = self.find_element(By.XPATH, '//span[@data-test="salaries-submitted"]').text
+                except:
+                    salaries_submitted_element = "None"
+                try:
+                    confidence_element = self.find_element(By.XPATH,
+                                                           '//span[@class="confidence_ConfidenceLabel__M4wsy"]').text
+                except:
+                    confidence_element = "None"
+                try:
+                    updated_date_element = self.find_element(By.XPATH, "//span[contains(@data-test, 'last-updated')]").text
+                except:
+                    updated_date_element = "None"
+                try:
+                    country_elm = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[1]').text
+                except:
+                    country_elm = "None"
+                try:
+                    time.sleep(2)
+                    average_pay_element = self.find_element(By.XPATH,
+                                                        '(//span[@class="hero_AdditionalPayFont__C2brS"])[1]').text
+                except:
+                    average_pay_element = "None"
+                try:
+                    range_pay_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[2]').text
+                except:
+                    range_pay_element = "None"
+                time.sleep(5)
+
+                i = i + 1
+
+                row = (job_title, company_name, urls, base_pay_element, salaries_submitted_element, confidence_element,
+                       updated_date_element, country_elm, experience_text_element, average_pay_element, range_pay_element)
+
+                writing_csv_3(row)
             except:
                 try:
-                    print("trying again")
-                    time.sleep(10)
-                    self.drop_down_menu(i)
+                    continue
                 except:
-                    try:
-                        print("trying again 2")
-                        time.sleep(5)
-                        self.drop_down_menu(i)
-                    except:
-                        print("error in drop down menu")
-            try:
-                time.sleep(2)
-                self.wait.until(EC.presence_of_element_located((By.XPATH,'//div[@class="employer-header_nameAndRating___HtOS"]//p')))
-                company_name = self.find_element(By.XPATH, '//div[@class="employer-header_nameAndRating___HtOS"]//p').text
-                company_scroll = self.find_element(By.XPATH, '//a[@data-test="ei-hero-overview-link"]')
-                company_scroll.send_keys(Keys.PAGE_DOWN)
-            except:
-                company_name = "None"
-            try:
-                # self.wait.until(EC.presence_of_element_located((By.XPATH,'//h1')))
-                job_title = self.find_element(By.XPATH, '//h1').text
-            except:
-                job_title = "None"
-            try:
-                experience_text_element = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[2]').text
-            except:
-                experience_text_element = "None"
-            try:
-                base_pay_element = self.find_element(By.XPATH, '(//div[@class="hero_TotalPayLayout__X55hl hero_PayRange__nKzVj"])[1]').text
-            except:
-                base_pay_element = "None"
-            try:
-                salaries_submitted_element = self.find_element(By.XPATH, '//span[@data-test="salaries-submitted"]').text
-            except:
-                salaries_submitted_element = "None"
-            try:
-                confidence_element = self.find_element(By.XPATH,
-                                                       '//span[@class="confidence_ConfidenceLabel__M4wsy"]').text
-            except:
-                confidence_element = "None"
-            try:
-                updated_date_element = self.find_element(By.XPATH, "//span[contains(@data-test, 'last-updated')]").text
-            except:
-                updated_date_element = "None"
-            try:
-                country_elm = self.find_element(By.XPATH, '(//span[@class="filter-chip_FilterChipText__HQdHz"])[1]').text
-            except:
-                country_elm = "None"
-            try:
-                time.sleep(2)
-                average_pay_element = self.find_element(By.XPATH,
-                                                    '(//span[@class="hero_AdditionalPayFont__C2brS"])[1]').text
-            except:
-                average_pay_element = "None"
-            try:
-                range_pay_element = self.find_element(By.XPATH, '(//span[@class="hero_AdditionalPayFont__C2brS"])[2]').text
-            except:
-                range_pay_element = "None"
-            time.sleep(5)
-
-            i = i + 1
-
-            row = (job_title, company_name, urls, base_pay_element, salaries_submitted_element, confidence_element,
-                   updated_date_element, country_elm, experience_text_element, average_pay_element, range_pay_element)
-
-            writing_csv_3(row)
+                    print("error in drop down menu")
 
     def open_web(self):
         """
